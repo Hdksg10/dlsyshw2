@@ -13,10 +13,9 @@ TENSOR_COUNTER = 0
 
 # NOTE: we will import numpy as the array_api
 # as the backend for our computations, this line will change in later homeworks
-
 import numpy as array_api
-NDArray = numpy.ndarray
 
+NDArray = numpy.ndarray
 
 
 class Op:
@@ -379,7 +378,23 @@ def compute_gradient_of_variables(output_tensor, out_grad):
 
     # Traverse graph in reverse topological order given the output_node that we are taking gradient wrt.
     reverse_topo_order = list(reversed(find_topo_sort([output_tensor])))
-
+    for node in reverse_topo_order:
+        output_grads_list = node_to_output_grads_list[node]
+        node.grad = sum_node_list(output_grads_list)
+        
+        if node.op is None: # input node
+            assert len(node.inputs) == 0
+            continue
+        
+        # Compute gradient contributions to each input node
+        input_grads = node.op.gradient_as_tuple(node.grad, node)
+        for i, input_node in enumerate(node.inputs):
+            if input_node in node_to_output_grads_list:
+                node_to_output_grads_list[input_node].append(input_grads[i])
+            else:
+                node_to_output_grads_list[input_node] = [input_grads[i]]
+    return
+        
     ### BEGIN YOUR SOLUTION
     raise NotImplementedError()
     ### END YOUR SOLUTION
@@ -394,6 +409,11 @@ def find_topo_sort(node_list: List[Value]) -> List[Value]:
     sort.
     """
     ### BEGIN YOUR SOLUTION
+    topo_order = []
+    visited = set()
+    for node in node_list:
+        topo_sort_dfs(node, visited, topo_order)
+    return topo_order
     raise NotImplementedError()
     ### END YOUR SOLUTION
 
@@ -401,7 +421,14 @@ def find_topo_sort(node_list: List[Value]) -> List[Value]:
 def topo_sort_dfs(node, visited, topo_order):
     """Post-order DFS"""
     ### BEGIN YOUR SOLUTION
-    raise NotImplementedError()
+    if node in visited:
+        return
+    
+    visited.add(node)
+    for node_input in node.inputs:
+        topo_sort_dfs(node_input, visited, topo_order)
+    topo_order.append(node)
+    # raise NotImplementedError()
     ### END YOUR SOLUTION
 
 

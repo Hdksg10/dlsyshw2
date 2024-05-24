@@ -10853,7 +10853,6 @@ def test_dataloader_mnist():
         truth = mnist_train_dataset[i * batch_size : (i + 1) * batch_size]
         truth_x = truth[0] if truth[0].shape[0] > 1 else truth[0].reshape(-1)
         truth_y = truth[1] if truth[1].shape[0] > 1 else truth[1].reshape(-1)
-
         np.testing.assert_allclose(truth_x, batch_x.flatten())
         np.testing.assert_allclose(batch_y, truth_y)
 
@@ -10870,7 +10869,6 @@ def test_dataloader_mnist():
         truth = mnist_test_dataset[i * batch_size : (i + 1) * batch_size]
         truth_x = truth[0]
         truth_y = truth[1]
-
         np.testing.assert_allclose(truth_x, batch_x)
         np.testing.assert_allclose(batch_y, truth_y)
 
